@@ -1,0 +1,40 @@
+[general]
+name=Select Lines
+qgisMinimumVersion=3.0
+qgisMaximumVersion=3.99
+description=Select Lines
+version=0.1
+author=Shai Sussman
+email=shai.sussman@gmail.com
+
+changelog = First version
+
+about = Enables selecting line featuers based that pass through all the drawn lines.
+
+
+# For QGIS WPS
+server=False
+
+# End of mandatory metadata
+
+# Optional items:
+
+# Uncomment the following line and add your changelog:
+# changelog=
+    Version 0.1
+    * first version
+
+
+# Tags are comma separated with spaces allowed
+tags=filter,layer,selection, transportation
+
+homepage=https://github.com/Shai2u/filterbyselection
+tracker=https://github.com/Shai2u/filterbyselection/issues
+repository=https://github.com/Shai2u/filterbyselection
+icon=filter_icon.png
+# experimental flag
+experimental=False
+
+# deprecated flag (applies to the whole plugin, not just a single version)
+deprecated=False
+
