@@ -15,7 +15,7 @@ from qgis.PyQt import QtWidgets, uic, QtGui, QtCore, QtWidgets
 from qgis.PyQt.QtWidgets import *
 from qgis.gui import *
 from qgis.utils import *
-from qgis.core import QgsProject, QgsVectorLayer, Qgis, QgsWkbTypes, QgsPointXY
+from qgis.core import QgsProject, QgsVectorLayer, Qgis, QgsWkbTypes, QgsPointXY, QgsCoordinateTransform
 from qgis.PyQt.QtCore import pyqtSignal
 
 
@@ -42,6 +42,7 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
         self.iface = iface
         self.tool = None
         self.pushButton_draw_lines.clicked.connect(self.draw_lines)
+        self.pushButton_select_features.clicked.connect(self.select_features)
 
 
 
@@ -56,6 +57,69 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
         self.tool = LineTool(self.iface.mapCanvas())
         self.iface.mapCanvas().setMapTool(self.tool)
         self.iface.mapCanvas().setCursor(QtCore.Qt.CrossCursor)
+
+      
+    def select_features(self):
+      layer = self.iface.activeLayer()
+      if not layer or not layer.isValid():
+        self.iface.messageBar().pushMessage("Error", "Invalid layer provided.", level=Qgis.Critical)
+        return
+      if self.tool is None:
+        self.iface.messageBar().pushMessage("Error", "No Drawn lines", level=Qgis.Critical)
+        return
+      
+      # Deselect all features first
+      layer.removeSelection()
+      print(layer.name())
+      # Create a set to hold IDs of intersecting features
+      intersecting_ids = set()
+
+      # First selection
+      drawn_geometry = self.tool.rubberBand_list[0].asGeometry()
+
+      project_crs = QgsProject.instance().crs()
+      layer_crs = layer.crs()
+      print(project_crs)
+      print(layer_crs)
+      if project_crs!=layer_crs:
+        # Create coordinate transform object
+        transform = QgsCoordinateTransform(project_crs, layer_crs, QgsProject.instance().transformContext())
+        # Transform the geometry to the layer's CRS
+        drawn_geometry.transform(transform)
+        print(drawn_geometry)
+
+      transform = QgsCoordinateTransform(project_crs, layer_crs, QgsProject.instance().transformContext())
+      for feature in layer.getFeatures():
+        feature_geom = feature.geometry()
+        # Check if the feature's geometry intersects with the query geometry
+        if feature_geom.intersects(drawn_geometry):
+            intersecting_ids.add(feature.id())
+      # Select the features by IDs
+      layer.selectByIds(list(intersecting_ids))
+      # Refresh the layer to update the selection
+      layer.triggerRepaint()
+      # filter from first selection
+      for i in range(1, len(self.tool.rubberBand_list)):
+        drawn_geometry = self.tool.rubberBand_list[i].asGeometry()
+        # Transform the geometry to the layer's CRS
+        drawn_geometry.transform(transform)
+        if not drawn_geometry.isNull():
+          sub_intersecting_ids = set()
+          currently_selected_ids = layer.selectedFeatureIds()
+          for selected_id in currently_selected_ids:
+            feature_geom = layer.getFeature(selected_id).geometry()
+            if feature_geom.intersects(drawn_geometry):
+              sub_intersecting_ids.add(selected_id)
+          layer.selectByIds(list(sub_intersecting_ids))
+          # Refresh the layer to update the selection
+      layer.triggerRepaint()
+           
+
+
+      # Provide feedback
+      self.iface.messageBar().pushMessage("Info", f"Selected {len(intersecting_ids)} features.", level=Qgis.Info)
+
+
 
 class LineTool(QgsMapTool):
   def __init__(self, canvas):
@@ -88,7 +152,6 @@ class LineTool(QgsMapTool):
     self.startPoint = self.toMapCoordinates(e.pos())
     self.endPoint = self.startPoint
     self.isEmittingPoint = True
-    print('press!:', self.index)
     if self.index < self.index_max -1:
       self.index += 1
     else:
