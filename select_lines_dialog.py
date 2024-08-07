@@ -68,7 +68,9 @@ class LineTool(QgsMapTool):
     for i in range(self.index_max):
       rubberBand = QgsRubberBand(self.canvas, QgsWkbTypes.LineGeometry)
       rubberBand.setColor( QtCore.Qt.red if i == 0 else QtCore.Qt.blue)  
-      rubberBand.setWidth(2)
+      rubberBand.setWidth(4)
+      rubberBand.setSecondaryStrokeColor(QtCore.Qt.green)
+      rubberBand.setLineStyle(QtCore.Qt.SolidLine)
       self.rubberBand_list.append(rubberBand)
     self.index = -1
     self.reset()
