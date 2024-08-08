@@ -47,9 +47,17 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
         self.pushButton_reset_lines.setEnabled(False)
         self.pushButton_select_features.setEnabled(False)        
 
-
-
     def closeEvent(self, event):
+        """
+        Close event handler for the SelectLinesDialog.
+        Unset the tool, and reset the cursor to the default arrow cursor.
+
+        Parameters:
+        - event (QCloseEvent): The close event object.
+
+        Returns:
+        None
+        """
         if self.tool is not None:
           self.tool.removeRubberBands()
         self.iface.mapCanvas().unsetMapTool(self.tool)
@@ -58,6 +66,18 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
         event.accept()
 
     def draw_lines(self):
+        """
+        Draws lines on the map canvas using the LineTool.
+
+        This method sets the map tool to LineTool and updates the cursor to a cross cursor.
+        It also removes any existing rubber bands if a tool is already active.
+
+        Parameters:
+        - None
+
+        Returns:
+        - None
+        """
         if (self.tool is not None):
             self.tool.removeRubberBands()
         self.tool = LineTool(self.iface.mapCanvas(),  self.pushButton_reset_lines,  self.pushButton_select_features)
@@ -65,6 +85,17 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
         self.iface.mapCanvas().setCursor(QtCore.Qt.CrossCursor)
 
     def remove_lines(self):
+      """
+      Remove the lines from the canvas.
+
+      This method removes the rubber bands (drawn lines) and disables the buttons for resetting lines and selecting features.
+
+      Parameters:
+        None
+
+      Returns:
+        None
+      """
       if self.tool is not None:
           self.tool.removeRubberBands()
           self.iface.mapCanvas().setCursor(QtCore.Qt.ArrowCursor)
@@ -72,6 +103,13 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
           self.pushButton_select_features.setEnabled(False)
       
     def select_features(self):
+      """
+      Selects features in the active layer based on drawn lines.
+      Returns:
+        None
+      Raises:
+        None
+      """
       layer = self.iface.activeLayer()
       if not layer or not layer.isValid():
         self.iface.messageBar().pushMessage("Error", "Invalid layer provided.", level=Qgis.Critical)
@@ -123,8 +161,6 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
           # Refresh the layer to update the selection
       layer.triggerRepaint()
            
-
-
       # Provide feedback
       self.iface.messageBar().pushMessage("Info", f"Selected {len(intersecting_ids)} features.", level=Qgis.Info)
       self.pushButton_select_features.setEnabled(False)
@@ -153,13 +189,41 @@ class LineTool(QgsMapTool):
     self.endPoints = []
 
   def removeRubberBands(self):
+    """
+    Remove all rubber bands from the canvas.
+
+    This method removes all rubber bands (drawn lines) from the canvas scene.
+
+    Parameters:
+      None
+
+    Returns:
+      None
+    """
     for rubberBand in self.rubberBand_list:
         self.canvas.scene().removeItem(rubberBand)
+
+
   def reset(self):
+    """
+    Reset the start and end points of the line selection.
+
+    This method sets the `startPoint` and `endPoint` attributes to `None` and
+    the `isEmittingPoint` attribute to `False`.
+    """
     self.startPoint = self.endPoint = None
     self.isEmittingPoint = False
 
   def canvasPressEvent(self, e):
+    """
+    Handle the canvas press event, sets the reset and select features buttons to enabled if the index is less than the maximum index.
+
+    Parameters:
+      e (QMouseEvent): The mouse event object.
+
+    Returns:
+      None
+    """
     self.startPoint = self.toMapCoordinates(e.pos())
     self.endPoint = self.startPoint
     self.isEmittingPoint = True
@@ -171,17 +235,48 @@ class LineTool(QgsMapTool):
       self.index = 0
 
   def canvasReleaseEvent(self, e): 
+    """
+    Handle the release event of the canvas.
 
+    Parameters:
+    e (QMouseEvent): The event object representing the release event.
+
+    Returns:
+    None
+    """
     self.isEmittingPoint = False
     
 
   def canvasMoveEvent(self, e):
+    """
+    Handle the canvas move event.
+
+    Parameters:
+    - e (QMouseEvent): The mouse event object.
+
+    Returns:
+    - None
+
+    Description:
+    This method is called when the cursor is moved int the canvas. It updates the end point of the line being drawn and shows the line on the canvas.
+
+    """
     if not self.isEmittingPoint:
       return
     self.endPoint = self.toMapCoordinates(e.pos())
     self.showLine(self.startPoint, self.endPoint)
 
   def showLine(self, startPoint, endPoint):
+    """
+    Show the lines on the canvas between that were drawn by the rubber bands given start and end point.
+
+    Parameters:
+    - startPoint (QPointF): The starting point of the line.
+    - endPoint (QPointF): The ending point of the line.
+
+    Returns:
+    None
+    """
     if self.index <= self.index_max:
       self.rubberBand_list[self.index].reset(QgsWkbTypes.LineGeometry)
     else:
@@ -199,6 +294,9 @@ class LineTool(QgsMapTool):
       self.rubberBand_list[i].show()
 
   def deactivate(self):
+    """
+    Deactivates the QgsMapTool and emits the 'deactivated' signal.
+    """
     QgsMapTool.deactivate(self)
     self.deactivated.emit()  
    

@@ -39,8 +39,6 @@ class SelectLines:
         self.pluginIsActive = False
         self.dockwidget = None
 
-
-
     def initGui(self):
         self.panelAction = QtWidgets.QAction(QtGui.QIcon(":/plugins/selectlines/icon.png"),u"SelectLines", self.iface.mainWindow())
         self.panelAction.triggered.connect(self.run)
@@ -64,7 +62,17 @@ class SelectLines:
         self.dockwidget.closingPlugin.disconnect(self.onClosePlugin)
 
         self.pluginIsActive = False
+
     def run(self, checked: bool): 
+      """
+      Run method for the SelectLines plugin.
+
+      Parameters:
+      - checked (bool): Indicates whether the plugin is ready to be displayed
+
+      Returns:
+      - None
+      """
       if not self.pluginIsActive:
         if self.dockwidget is None:
             self.dockwidget = SelectLinesDialog(self.iface)
