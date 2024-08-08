@@ -70,7 +70,6 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
       
       # Deselect all features first
       layer.removeSelection()
-      print(layer.name())
       # Create a set to hold IDs of intersecting features
       intersecting_ids = set()
 
@@ -79,14 +78,11 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
 
       project_crs = QgsProject.instance().crs()
       layer_crs = layer.crs()
-      print(project_crs)
-      print(layer_crs)
       if project_crs!=layer_crs:
         # Create coordinate transform object
         transform = QgsCoordinateTransform(project_crs, layer_crs, QgsProject.instance().transformContext())
         # Transform the geometry to the layer's CRS
         drawn_geometry.transform(transform)
-        print(drawn_geometry)
 
       transform = QgsCoordinateTransform(project_crs, layer_crs, QgsProject.instance().transformContext())
       for feature in layer.getFeatures():
