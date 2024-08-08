@@ -42,6 +42,7 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
         self.iface = iface
         self.tool = None
         self.pushButton_draw_lines.clicked.connect(self.draw_lines)
+        self.pushButton_reset_lines.clicked.connect(self.remove_lines)
         self.pushButton_select_features.clicked.connect(self.select_features)
 
 
@@ -58,6 +59,12 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
         self.iface.mapCanvas().setMapTool(self.tool)
         self.iface.mapCanvas().setCursor(QtCore.Qt.CrossCursor)
 
+    def remove_lines(self):
+      if self.tool is not None:
+          self.tool.removeRubberBands()
+          self.iface.mapCanvas().setCursor(QtCore.Qt.ArrowCursor)
+          self.pushButton_reset_lines.setEnabled(False)
+          self.pushButton_select_features.setEnabled(False)
       
     def select_features(self):
       layer = self.iface.activeLayer()
