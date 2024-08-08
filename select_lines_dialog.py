@@ -44,6 +44,8 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
         self.pushButton_draw_lines.clicked.connect(self.draw_lines)
         self.pushButton_reset_lines.clicked.connect(self.remove_lines)
         self.pushButton_select_features.clicked.connect(self.select_features)
+        self.pushButton_reset_lines.setEnabled(False)
+        self.pushButton_select_features.setEnabled(False)        
 
 
 
@@ -58,7 +60,7 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
     def draw_lines(self):
         if (self.tool is not None):
             self.tool.removeRubberBands()
-        self.tool = LineTool(self.iface.mapCanvas())
+        self.tool = LineTool(self.iface.mapCanvas(),  self.pushButton_reset_lines,  self.pushButton_select_features)
         self.iface.mapCanvas().setMapTool(self.tool)
         self.iface.mapCanvas().setCursor(QtCore.Qt.CrossCursor)
 
@@ -77,6 +79,7 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
       if self.tool is None:
         self.iface.messageBar().pushMessage("Error", "No Drawn lines", level=Qgis.Critical)
         return
+      self.iface.mapCanvas().setCursor(QtCore.Qt.ArrowCursor)
       
       # Deselect all features first
       layer.removeSelection()
@@ -124,17 +127,20 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
 
       # Provide feedback
       self.iface.messageBar().pushMessage("Info", f"Selected {len(intersecting_ids)} features.", level=Qgis.Info)
-
+      self.pushButton_reset_lines.setEnabled(False)
+      self.pushButton_select_features.setEnabled(False)
 
 
 class LineTool(QgsMapTool):
-  def __init__(self, canvas):
+  def __init__(self, canvas, reset_button, select_features_button):
     self.canvas = canvas
     QgsMapTool.__init__(self, self.canvas)
     self.enable = False
     self.lines = []
     self.rubberBand_list = []
     self.index_max = 5
+    self.reset_button = reset_button
+    self.select_features_button = select_features_button
     for i in range(self.index_max):
       rubberBand = QgsRubberBand(self.canvas, QgsWkbTypes.LineGeometry)
       rubberBand.setColor( QtCore.Qt.red if i == 0 else QtCore.Qt.blue)  
@@ -160,9 +166,10 @@ class LineTool(QgsMapTool):
     self.isEmittingPoint = True
     if self.index < self.index_max -1:
       self.index += 1
+      self.reset_button.setEnabled(True)
+      self.select_features_button.setEnabled(True)
     else:
       self.index = 0
-      print(self.rubberBand_list[-1].asGeometry())
 
     # self.showLine(self.startPoint, self.endPoint)
 
