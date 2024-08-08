@@ -48,13 +48,16 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
 
 
     def closeEvent(self, event):
-        self.tool.removeRubberBands()
+        if self.tool is not None:
+          self.tool.removeRubberBands()
         self.iface.mapCanvas().unsetMapTool(self.tool)
         self.iface.mapCanvas().setCursor(QtCore.Qt.ArrowCursor)
         self.closingPlugin.emit()
         event.accept()
 
     def draw_lines(self):
+        if (self.tool is not None):
+            self.tool.removeRubberBands()
         self.tool = LineTool(self.iface.mapCanvas())
         self.iface.mapCanvas().setMapTool(self.tool)
         self.iface.mapCanvas().setCursor(QtCore.Qt.CrossCursor)
