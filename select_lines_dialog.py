@@ -170,10 +170,7 @@ class LineTool(QgsMapTool):
     else:
       self.index = 0
 
-    # self.showLine(self.startPoint, self.endPoint)
-
   def canvasReleaseEvent(self, e): 
-    # self.panelAction.setIcon(QtGui.QIcon(":/plugins/selectlines/icon2.png"))        self.iface.removeToolBarIcon(self.panelAction)
 
     self.isEmittingPoint = False
     
@@ -202,7 +199,6 @@ class LineTool(QgsMapTool):
       self.rubberBand_list[i].show()
 
   def deactivate(self):
-    # self.canvas.setCursor(QtCore.Qt.ArrowCursor)
     QgsMapTool.deactivate(self)
     self.deactivated.emit()  
    

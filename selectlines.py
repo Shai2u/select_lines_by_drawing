@@ -31,11 +31,6 @@ from .select_lines_dialog import SelectLinesDialog
 
 # Import the code for the dialog
 import os.path
-rl=QgsRubberBand(iface.mapCanvas(),QgsWkbTypes.LineGeometry )
-premuto= False
-linea=False
-point0=iface.mapCanvas().getCoordinateTransform().toMapCoordinates(0, 0)
-point1=iface.mapCanvas().getCoordinateTransform().toMapCoordinates(0, 0)
 class SelectLines:
 
     def __init__(self, iface):
@@ -58,10 +53,6 @@ class SelectLines:
     def unload(self):
         self.iface.removePluginMenu(u"&SelectLines", self.panelAction)
         self.iface.removeToolBarIcon(self.panelAction)
-        # del self.dockwidget
-        # self.dockwidget = None
-        # self.iface.mapCanvas().unsetMapTool(self.tool)
-        # self.iface.mapCanvas().setCursor(QtCore.Qt.ArrowCursor)
    
     def widgetVisibilityChanged(self, visible: bool) -> None:
         self.panelAction.setChecked(visible)
@@ -84,9 +75,5 @@ class SelectLines:
             area=QtCore.Qt.LeftDockWidgetArea,
             dockwidget=self.dockwidget,
         )
-        # tool = LineTool(self.iface.mapCanvas())
-        # self.iface.mapCanvas().setMapTool(tool)
-          # The triggered signal includes a bool 
-        # that indicates whether the button was checked or unchecked
       self.dockwidget.setVisible(checked)  
 
