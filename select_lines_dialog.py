@@ -127,7 +127,6 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
 
       # Provide feedback
       self.iface.messageBar().pushMessage("Info", f"Selected {len(intersecting_ids)} features.", level=Qgis.Info)
-      self.pushButton_reset_lines.setEnabled(False)
       self.pushButton_select_features.setEnabled(False)
 
 
