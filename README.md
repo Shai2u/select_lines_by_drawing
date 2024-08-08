@@ -1,8 +1,8 @@
 # Select Lines By Drawing
 
-QGIS plugin that enables feature line selections using drawing lines where the the feature lines pass.
+## Plugin Description:
 
-The plugin is in work in progress
+The Feature Line Selector plugin for QGIS empowers users with an intuitive tool for selecting features based on their spatial relationships. This plugin enables users to draw a line on the map canvas, and it automatically selects all feature lines that intersect with the drawn line, and removes from the selection lines that do not intersect with the other drawn lines.
 
-Here is an image that describes the concept.
+Screenshot:
 ![Image](media/example.png)
