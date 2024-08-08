@@ -28,10 +28,10 @@ server=False
 # Tags are comma separated with spaces allowed
 tags=filter,layer,selection, transportation
 
-homepage=https://github.com/Shai2u/filterbyselection
-tracker=https://github.com/Shai2u/filterbyselection/issues
-repository=https://github.com/Shai2u/filterbyselection
-icon=filter_icon.png
+homepage=https://github.com/Shai2u/select_lines_by_drawing
+tracker=https://github.com/Shai2u/select_lines_by_drawing/issues
+repository=https://github.com/Shai2u/select_lines_by_drawing
+icon=icon.png
 # experimental flag
 experimental=False
 
