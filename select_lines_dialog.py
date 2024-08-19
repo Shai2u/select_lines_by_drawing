@@ -160,9 +160,8 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
           layer.selectByIds(list(sub_intersecting_ids))
           # Refresh the layer to update the selection
       layer.triggerRepaint()
-           
       # Provide feedback
-      self.iface.messageBar().pushMessage("Info", f"Selected {len(intersecting_ids)} features.", level=Qgis.Info)
+      self.iface.messageBar().pushMessage("Info", f"Selected {layer.selectedFeatureCount()} features.", level=Qgis.Info)
       self.pushButton_select_features.setEnabled(False)
 
 
