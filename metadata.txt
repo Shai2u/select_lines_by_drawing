@@ -3,7 +3,7 @@ name=Select Lines
 qgisMinimumVersion=3.0
 qgisMaximumVersion=3.99
 description=Select Lines
-version=0.1
+version=0.2
 author=Shai Sussman
 email=shai.sussman@gmail.com
 
@@ -23,6 +23,9 @@ server=False
 # changelog=
     Version 0.1
     * first version
+    Version 0.2
+    * Set number of selected drawing lines from 5 to 25
+    * Show corrected number of selected lines in user push message
 
 
 # Tags are comma separated with spaces allowed
