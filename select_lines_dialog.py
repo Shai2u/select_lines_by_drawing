@@ -173,7 +173,7 @@ class LineTool(QgsMapTool):
     self.enable = False
     self.lines = []
     self.rubberBand_list = []
-    self.index_max = 5
+    self.index_max = 25
     self.reset_button = reset_button
     self.select_features_button = select_features_button
     for i in range(self.index_max):
