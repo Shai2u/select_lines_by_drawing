@@ -80,7 +80,7 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
         """
         if (self.tool is not None):
             self.tool.removeRubberBands()
-        self.tool = LineTool(self.iface.mapCanvas(),  self.pushButton_reset_lines,  self.pushButton_select_features)
+        self.tool = LineTool(self.iface.mapCanvas(),  self.pushButton_reset_lines,  self.pushButton_select_features, True)
         self.iface.mapCanvas().setMapTool(self.tool)
         self.iface.mapCanvas().setCursor(QtCore.Qt.CrossCursor)
 
@@ -168,6 +168,7 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
 
         layer.selectByIds(list(set_of_ids_to_select))
           # Refresh the layer to update the selection
+      self.tool.index = self.tool.index_max
       layer.triggerRepaint()
       # Provide feedback
       self.iface.messageBar().pushMessage("Info", f"Selected {layer.selectedFeatureCount()} features.", level=Qgis.Info)
@@ -175,10 +176,13 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
 
 
 class LineTool(QgsMapTool):
-  def __init__(self, canvas, reset_button, select_features_button):
+  def __init__(self, canvas, reset_button, select_features_button, automatic = True):
     self.canvas = canvas
     QgsMapTool.__init__(self, self.canvas)
     self.enable = False
+    self.automatic_mode = automatic
+    # if automatic_mode is False, than we will use the self.operation attribute to determine the operation to be performed
+    self.operation = 'none'
     self.lines = []
     self.rubberBand_list = []
     self.index_max = 25
@@ -186,10 +190,6 @@ class LineTool(QgsMapTool):
     self.select_features_button = select_features_button
     for i in range(self.index_max):
       rubberBand = QgsRubberBand(self.canvas, QgsWkbTypes.LineGeometry)
-      rubberBand.setColor( QtCore.Qt.green if i == 0 else QtCore.Qt.blue)  
-      rubberBand.setWidth(4)
-      rubberBand.setSecondaryStrokeColor(QtCore.Qt.green)
-      rubberBand.setLineStyle(QtCore.Qt.SolidLine)
       if i==0:
          rubber_band_dict = {'operation':'add',
                       'geom': rubberBand}
@@ -300,7 +300,39 @@ class LineTool(QgsMapTool):
 
     point1 = QgsPointXY(startPoint.x(), startPoint.y())
     point2 = QgsPointXY(endPoint.x(), endPoint.y())
-
+    if self.automatic_mode:
+      if self.index == 0:
+        self.rubberBand_list[self.index]['operation'] = 'add'
+        self.rubberBand_list[self.index]['geom'].setColor( QtCore.Qt.green)  
+        self.rubberBand_list[self.index]['geom'].setWidth(4)
+        self.rubberBand_list[self.index]['geom'].setSecondaryStrokeColor(QtCore.Qt.red)
+        self.rubberBand_list[self.index]['geom'].setLineStyle(QtCore.Qt.SolidLine)
+      else:
+        self.rubberBand_list[self.index]['operation'] = 'filter'
+        self.rubberBand_list[self.index]['geom'].setColor(QtCore.Qt.blue)  
+        self.rubberBand_list[self.index]['geom'].setWidth(4)
+        self.rubberBand_list[self.index]['geom'].setSecondaryStrokeColor(QtCore.Qt.red)
+        self.rubberBand_list[self.index]['geom'].setLineStyle(QtCore.Qt.SolidLine)
+    else:
+      if self.operation == 'add':
+        self.rubberBand_list[self.index]['operation'] = 'add'
+        self.rubberBand_list[self.index]['geom'].setColor( QtCore.Qt.green)  
+        self.rubberBand_list[self.index]['geom'].setWidth(4)
+        self.rubberBand_list[self.index]['geom'].setSecondaryStrokeColor(QtCore.Qt.green)
+        self.rubberBand_list[self.index]['geom'].setLineStyle(QtCore.Qt.SolidLine)
+      elif self.operation == 'filter':
+        self.rubberBand_list[self.index]['operation'] = 'filter'
+        self.rubberBand_list[self.index]['geom'].setColor(QtCore.Qt.blue)  
+        self.rubberBand_list[self.index]['geom'].setWidth(4)
+        self.rubberBand_list[self.index]['geom'].setSecondaryStrokeColor(QtCore.Qt.red)
+        self.rubberBand_list[self.index]['geom'].setLineStyle(QtCore.Qt.SolidLine)
+      else:
+        self.rubberBand_list[self.index]['operation'] = 'remove'
+        self.rubberBand_list[self.index]['geom'].setColor(QtCore.Qt.black)  
+        self.rubberBand_list[self.index]['geom'].setWidth(4)
+        self.rubberBand_list[self.index]['geom'].setSecondaryStrokeColor(QtCore.Qt.red)
+        self.rubberBand_list[self.index]['geom'].setLineStyle(QtCore.Qt.SolidLine)       
+  
     self.rubberBand_list[self.index]['geom'].addPoint(point1, False)
     self.rubberBand_list[self.index]['geom'].addPoint(point2, True) # true to update canvas  
     self.rubberBand_list[self.index]['geom'].show()
