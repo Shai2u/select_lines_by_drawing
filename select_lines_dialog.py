@@ -43,9 +43,16 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
         self.tool = None
         self.automatic_mode = True
         self.annotaiton_layer_name ='plugin_annotation'
+        self.tabs.currentChanged.connect(self.on_tab_changed)
         self.pushButton_draw_lines.clicked.connect(self.draw_lines)
         self.pushButton_reset_lines.clicked.connect(self.remove_lines)
         self.pushButton_select_features.clicked.connect(self.select_features)
+        self.pushButton_init.clicked.connect(self.init_manual)
+
+        self.pushButton_add_lines.clicked.connect(self.add_lines)
+        self.pushButton_remove_lines.clicked.connect(self.subtract_lines)
+        self.pushButton_filter_lines.clicked.connect(self.filter_lines)       
+       
         self.pushButton_reset_lines.setEnabled(False)
         self.pushButton_select_features.setEnabled(False)   
 
@@ -63,12 +70,30 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
         if self.tool is not None:
           self.tool.removeRubberBands()
         # Find the layer by its name
-        QgsProject.instance().removeMapLayer(self.annolayer.id())
+        layer_check = QgsProject.instance().mapLayersByName(self.annotaiton_layer_name)
+        # Check if the layer exists in the Table of Contents
+        if len(layer_check) >0:
+          QgsProject.instance().removeMapLayer(self.annolayer.id())
         self.iface.mapCanvas().unsetMapTool(self.tool)
         self.iface.mapCanvas().setCursor(QtCore.Qt.ArrowCursor)
         self.iface.mapCanvas().refresh()
         self.closingPlugin.emit()
         event.accept()
+    def on_tab_changed(self, index):
+       self.remove_lines()
+       self.iface.mapCanvas().setCursor(QtCore.Qt.ArrowCursor)
+       print(index)
+       if index ==1:
+          self.automatic_mode = False
+          self.pushButton_add_lines.setEnabled(False)
+          self.pushButton_remove_lines.setEnabled(False)
+          self.pushButton_filter_lines.setEnabled(False)
+
+       else:
+          self.automatic_mode = True
+
+
+
 
     def draw_lines(self):
         """
@@ -96,12 +121,46 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
           self.iface.setActiveLayer(self.active_layer)
         else:
           self.annolayer = layer_check[0]
-           
+        
         self.tool = LineTool(self.iface.mapCanvas(),  self.pushButton_reset_lines,  self.pushButton_select_features, self.iface.activeLayer().crs(), self.annolayer , True)
         self.iface.mapCanvas().setMapTool(self.tool)
         self.iface.mapCanvas().setCursor(QtCore.Qt.CrossCursor)
 
+    def init_manual(self):
+        self.iface.mapCanvas().setCursor(QtCore.Qt.ArrowCursor)
+        self.pushButton_add_lines.setEnabled(True)
+        self.pushButton_remove_lines.setEnabled(True)
+        self.pushButton_filter_lines.setEnabled(True)
+        self.active_layer = self.iface.activeLayer()
+        if (self.tool is not None):
+            self.tool.removeRubberBands()
+        # Find the layer by its name
+        layer_check = QgsProject.instance().mapLayersByName(self.annotaiton_layer_name)
+        # Check if the layer exists in the Table of Contents
+        if len(layer_check) ==0:
+          self.annolayer = QgsAnnotationLayer(self.annotaiton_layer_name, QgsAnnotationLayer.LayerOptions(QgsProject.instance().transformContext()))
+          QgsProject.instance().addMapLayer(self.annolayer)
+          self.annolayer.setFlags(QgsMapLayer.Private)
+          self.iface.setActiveLayer(self.active_layer)
+        else:
+          self.annolayer = layer_check[0]
+        self.tool = LineTool(self.iface.mapCanvas(),  self.pushButton_reset_lines,  self.pushButton_select_features, self.iface.activeLayer().crs(), self.annolayer , False)
+       
+    def add_lines(self):
+        self.tool.operation = 'add'
+        self.iface.mapCanvas().setMapTool(self.tool)
+        self.iface.mapCanvas().setCursor(QtCore.Qt.CrossCursor)
 
+    def subtract_lines(self):
+
+       self.tool.operation = 'remove'
+       self.iface.mapCanvas().setMapTool(self.tool)
+       self.iface.mapCanvas().setCursor(QtCore.Qt.CrossCursor)  
+
+    def filter_lines(self):
+       self.tool.operation = 'filter'
+       self.iface.mapCanvas().setMapTool(self.tool)
+       self.iface.mapCanvas().setCursor(QtCore.Qt.CrossCursor) 
 
 
     def remove_lines(self):
@@ -127,6 +186,9 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
           self.annolayer.setFlags(QgsMapLayer.Private)
           self.iface.setActiveLayer(self.active_layer)
           # iface.setActiveLayer(layer)
+          self.pushButton_add_lines.setEnabled(False)
+          self.pushButton_remove_lines.setEnabled(False)
+          self.pushButton_filter_lines.setEnabled(False)
       
     
     def get_line_ids(self, layer, drawn_geometry):
@@ -198,6 +260,9 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
       # Provide feedback
       self.iface.messageBar().pushMessage("Info", f"Selected {layer.selectedFeatureCount()} features.", level=Qgis.Info)
       self.pushButton_select_features.setEnabled(False)
+      self.pushButton_add_lines.setEnabled(False)
+      self.pushButton_remove_lines.setEnabled(False)
+      self.pushButton_filter_lines.setEnabled(False)
 
 
 class LineTool(QgsMapTool):
