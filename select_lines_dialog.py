@@ -15,7 +15,7 @@ from qgis.PyQt import QtWidgets, uic, QtGui, QtCore, QtWidgets
 from qgis.PyQt.QtWidgets import *
 from qgis.gui import *
 from qgis.utils import *
-from qgis.core import QgsProject, QgsVectorLayer, Qgis, QgsWkbTypes, QgsPointXY, QgsCoordinateTransform
+from qgis.core import *
 from qgis.PyQt.QtCore import pyqtSignal
 
 
@@ -41,11 +41,13 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
         self.setupUi(self)
         self.iface = iface
         self.tool = None
+        self.automatic_mode = True
+        self.annotaiton_layer_name ='plugin_annotation'
         self.pushButton_draw_lines.clicked.connect(self.draw_lines)
         self.pushButton_reset_lines.clicked.connect(self.remove_lines)
         self.pushButton_select_features.clicked.connect(self.select_features)
         self.pushButton_reset_lines.setEnabled(False)
-        self.pushButton_select_features.setEnabled(False)        
+        self.pushButton_select_features.setEnabled(False)   
 
     def closeEvent(self, event):
         """
@@ -60,8 +62,11 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
         """
         if self.tool is not None:
           self.tool.removeRubberBands()
+        # Find the layer by its name
+        QgsProject.instance().removeMapLayer(self.annolayer.id())
         self.iface.mapCanvas().unsetMapTool(self.tool)
         self.iface.mapCanvas().setCursor(QtCore.Qt.ArrowCursor)
+        self.iface.mapCanvas().refresh()
         self.closingPlugin.emit()
         event.accept()
 
@@ -78,11 +83,26 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
         Returns:
         - None
         """
+        self.active_layer = self.iface.activeLayer()
         if (self.tool is not None):
             self.tool.removeRubberBands()
-        self.tool = LineTool(self.iface.mapCanvas(),  self.pushButton_reset_lines,  self.pushButton_select_features, True)
+        # Find the layer by its name
+        layer_check = QgsProject.instance().mapLayersByName(self.annotaiton_layer_name)
+        # Check if the layer exists in the Table of Contents
+        if len(layer_check) ==0:
+          self.annolayer = QgsAnnotationLayer(self.annotaiton_layer_name, QgsAnnotationLayer.LayerOptions(QgsProject.instance().transformContext()))
+          QgsProject.instance().addMapLayer(self.annolayer)
+          self.annolayer.setFlags(QgsMapLayer.Private)
+          self.iface.setActiveLayer(self.active_layer)
+        else:
+          self.annolayer = layer_check[0]
+           
+        self.tool = LineTool(self.iface.mapCanvas(),  self.pushButton_reset_lines,  self.pushButton_select_features, self.iface.activeLayer().crs(), self.annolayer , True)
         self.iface.mapCanvas().setMapTool(self.tool)
         self.iface.mapCanvas().setCursor(QtCore.Qt.CrossCursor)
+
+
+
 
     def remove_lines(self):
       """
@@ -101,6 +121,12 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
           self.iface.mapCanvas().setCursor(QtCore.Qt.ArrowCursor)
           self.pushButton_reset_lines.setEnabled(False)
           self.pushButton_select_features.setEnabled(False)
+          QgsProject.instance().removeMapLayer(self.annolayer.id())
+          self.annolayer = QgsAnnotationLayer(self.annotaiton_layer_name, QgsAnnotationLayer.LayerOptions(QgsProject.instance().transformContext()))
+          QgsProject.instance().addMapLayer(self.annolayer)
+          self.annolayer.setFlags(QgsMapLayer.Private)
+          self.iface.setActiveLayer(self.active_layer)
+          # iface.setActiveLayer(layer)
       
     
     def get_line_ids(self, layer, drawn_geometry):
@@ -110,8 +136,7 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
           # Check if the feature's geometry intersects with the query geometry
           if feature_geom.intersects(drawn_geometry):
               intersecting_ids.add(feature.id())
-      print(intersecting_ids)
-      print('end of method')
+  
       return intersecting_ids
     
     def select_features(self):
@@ -176,13 +201,15 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
 
 
 class LineTool(QgsMapTool):
-  def __init__(self, canvas, reset_button, select_features_button, automatic = True):
+  def __init__(self, canvas, reset_button, select_features_button, layer_crs, annolayer, automatic = True):
     self.canvas = canvas
     QgsMapTool.__init__(self, self.canvas)
     self.enable = False
     self.automatic_mode = automatic
     # if automatic_mode is False, than we will use the self.operation attribute to determine the operation to be performed
     self.operation = 'none'
+    self.layer_crs = layer_crs
+    self.annolayer = annolayer 
     self.lines = []
     self.rubberBand_list = []
     self.index_max = 25
@@ -259,6 +286,8 @@ class LineTool(QgsMapTool):
     None
     """
     self.isEmittingPoint = False
+    self.add_index_anottation(self.index, self.rubberBand_list[self.index]['geom'].asGeometry())
+
     
 
   def canvasMoveEvent(self, e):
@@ -336,8 +365,31 @@ class LineTool(QgsMapTool):
     self.rubberBand_list[self.index]['geom'].addPoint(point1, False)
     self.rubberBand_list[self.index]['geom'].addPoint(point2, True) # true to update canvas  
     self.rubberBand_list[self.index]['geom'].show()
-    for i in range(self.index):
-      self.rubberBand_list[i]['geom'].show()
+
+    
+  def add_index_anottation(self, index, geom):
+      """ Method that adds annotation from a given X,Y 
+      """
+
+      # Perform test to see if points are in range if so return a geometry to center upon and continue testing
+      if  geom.wkbType().name != 'Unknown':
+        x = geom.asPolyline()[-1].x() + 200
+        y = geom.asPolyline()[-1].y()
+
+        a = QgsAnnotationPointTextItem(f"{index}", QgsPointXY(x, y))
+
+        # # 4. Create a QgsTextFormat object to handle the buffer
+        text_format = QgsTextFormat()
+
+        # # Set up the buffer settings
+        buffer_settings = QgsTextBufferSettings()
+        buffer_settings.setEnabled(True)
+        buffer_settings.setSize(2)  # Size of the buffer
+        buffer_settings.setColor(QtCore.Qt.white)  # Color of the buffer
+        text_format.setBuffer(buffer_settings)
+        a.setFormat(text_format)
+        self.annolayer.addItem(a)
+
 
   def deactivate(self):
     """
@@ -345,4 +397,3 @@ class LineTool(QgsMapTool):
     """
     QgsMapTool.deactivate(self)
     self.deactivated.emit()  
-   
