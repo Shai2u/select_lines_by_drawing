@@ -102,6 +102,18 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
           self.pushButton_reset_lines.setEnabled(False)
           self.pushButton_select_features.setEnabled(False)
       
+    
+    def get_line_ids(self, layer, drawn_geometry):
+      intersecting_ids = set()
+      for feature in layer.getFeatures():
+          feature_geom = feature.geometry()
+          # Check if the feature's geometry intersects with the query geometry
+          if feature_geom.intersects(drawn_geometry):
+              intersecting_ids.add(feature.id())
+      print(intersecting_ids)
+      print('end of method')
+      return intersecting_ids
+    
     def select_features(self):
       """
       Selects features in the active layer based on drawn lines.
@@ -122,7 +134,7 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
       # Deselect all features first
       layer.removeSelection()
       # Create a set to hold IDs of intersecting features
-      intersecting_ids = set()
+      set_of_ids_to_select = set()
 
       # First selection
       drawn_geometry = self.tool.rubberBand_list[0].asGeometry()
@@ -136,28 +148,19 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
         drawn_geometry.transform(transform)
 
       transform = QgsCoordinateTransform(project_crs, layer_crs, QgsProject.instance().transformContext())
-      for feature in layer.getFeatures():
-        feature_geom = feature.geometry()
-        # Check if the feature's geometry intersects with the query geometry
-        if feature_geom.intersects(drawn_geometry):
-            intersecting_ids.add(feature.id())
+      lines_intersect_ids = self.get_line_ids(layer, drawn_geometry)
+      set_of_ids_to_select = set_of_ids_to_select.union(lines_intersect_ids)
       # Select the features by IDs
-      layer.selectByIds(list(intersecting_ids))
-      # Refresh the layer to update the selection
-      layer.triggerRepaint()
+      layer.selectByIds(list(set_of_ids_to_select))
       # filter from first selection
       for i in range(1, len(self.tool.rubberBand_list)):
         drawn_geometry = self.tool.rubberBand_list[i].asGeometry()
         # Transform the geometry to the layer's CRS
         drawn_geometry.transform(transform)
         if not drawn_geometry.isNull():
-          sub_intersecting_ids = set()
-          currently_selected_ids = layer.selectedFeatureIds()
-          for selected_id in currently_selected_ids:
-            feature_geom = layer.getFeature(selected_id).geometry()
-            if feature_geom.intersects(drawn_geometry):
-              sub_intersecting_ids.add(selected_id)
-          layer.selectByIds(list(sub_intersecting_ids))
+          lines_intersect_ids = self.get_line_ids(layer, drawn_geometry)
+          set_of_ids_to_select = set_of_ids_to_select.intersection(lines_intersect_ids)
+          layer.selectByIds(list(set_of_ids_to_select))
           # Refresh the layer to update the selection
       layer.triggerRepaint()
       # Provide feedback
