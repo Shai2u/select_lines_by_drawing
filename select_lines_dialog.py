@@ -343,11 +343,12 @@ class LineTool(QgsMapTool):
         self.rubberBand_list[self.index]['geom'].setSecondaryStrokeColor(QtCore.Qt.red)
         self.rubberBand_list[self.index]['geom'].setLineStyle(QtCore.Qt.SolidLine)
     else:
+      
       if self.operation == 'add':
         self.rubberBand_list[self.index]['operation'] = 'add'
         self.rubberBand_list[self.index]['geom'].setColor( QtCore.Qt.green)  
         self.rubberBand_list[self.index]['geom'].setWidth(4)
-        self.rubberBand_list[self.index]['geom'].setSecondaryStrokeColor(QtCore.Qt.green)
+        self.rubberBand_list[self.index]['geom'].setSecondaryStrokeColor(QtCore.Qt.red)
         self.rubberBand_list[self.index]['geom'].setLineStyle(QtCore.Qt.SolidLine)
       elif self.operation == 'filter':
         self.rubberBand_list[self.index]['operation'] = 'filter'
