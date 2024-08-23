@@ -137,7 +137,7 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
       set_of_ids_to_select = set()
 
       # First selection
-      drawn_geometry = self.tool.rubberBand_list[0].asGeometry()
+      drawn_geometry = self.tool.rubberBand_list[0]['geom'].asGeometry()
 
       project_crs = QgsProject.instance().crs()
       layer_crs = layer.crs()
@@ -153,14 +153,20 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
       # Select the features by IDs
       layer.selectByIds(list(set_of_ids_to_select))
       # filter from first selection
-      for i in range(1, len(self.tool.rubberBand_list)):
-        drawn_geometry = self.tool.rubberBand_list[i].asGeometry()
+      for i, rubber_band_dict in enumerate(self.tool.rubberBand_list):
+        drawn_geometry = rubber_band_dict['geom'].asGeometry()
         # Transform the geometry to the layer's CRS
         drawn_geometry.transform(transform)
         if not drawn_geometry.isNull():
           lines_intersect_ids = self.get_line_ids(layer, drawn_geometry)
-          set_of_ids_to_select = set_of_ids_to_select.intersection(lines_intersect_ids)
-          layer.selectByIds(list(set_of_ids_to_select))
+          if rubber_band_dict['operation'] == 'add':
+            set_of_ids_to_select = set_of_ids_to_select.union(lines_intersect_ids)
+          elif rubber_band_dict['operation'] == 'filter':
+            set_of_ids_to_select = set_of_ids_to_select.intersection(lines_intersect_ids)
+          else:
+            set_of_ids_to_select = set_of_ids_to_select.difference(lines_intersect_ids)
+
+        layer.selectByIds(list(set_of_ids_to_select))
           # Refresh the layer to update the selection
       layer.triggerRepaint()
       # Provide feedback
@@ -180,11 +186,17 @@ class LineTool(QgsMapTool):
     self.select_features_button = select_features_button
     for i in range(self.index_max):
       rubberBand = QgsRubberBand(self.canvas, QgsWkbTypes.LineGeometry)
-      rubberBand.setColor( QtCore.Qt.red if i == 0 else QtCore.Qt.blue)  
+      rubberBand.setColor( QtCore.Qt.green if i == 0 else QtCore.Qt.blue)  
       rubberBand.setWidth(4)
       rubberBand.setSecondaryStrokeColor(QtCore.Qt.green)
       rubberBand.setLineStyle(QtCore.Qt.SolidLine)
-      self.rubberBand_list.append(rubberBand)
+      if i==0:
+         rubber_band_dict = {'operation':'add',
+                      'geom': rubberBand}
+      else:
+         rubber_band_dict = {'operation':'filter',
+                      'geom': rubberBand}       
+      self.rubberBand_list.append(rubber_band_dict)
     self.index = -1
     self.reset()
     self.startPoints = []
@@ -203,7 +215,7 @@ class LineTool(QgsMapTool):
       None
     """
     for rubberBand in self.rubberBand_list:
-        self.canvas.scene().removeItem(rubberBand)
+        self.canvas.scene().removeItem(rubberBand['geom'])
 
 
   def reset(self):
@@ -280,7 +292,7 @@ class LineTool(QgsMapTool):
     None
     """
     if self.index <= self.index_max:
-      self.rubberBand_list[self.index].reset(QgsWkbTypes.LineGeometry)
+      self.rubberBand_list[self.index]['geom'].reset(QgsWkbTypes.LineGeometry)
     else:
        return
     if startPoint.x() == endPoint.x() or startPoint.y() == endPoint.y():
@@ -289,11 +301,11 @@ class LineTool(QgsMapTool):
     point1 = QgsPointXY(startPoint.x(), startPoint.y())
     point2 = QgsPointXY(endPoint.x(), endPoint.y())
 
-    self.rubberBand_list[self.index].addPoint(point1, False)
-    self.rubberBand_list[self.index].addPoint(point2, True) # true to update canvas  
-    self.rubberBand_list[self.index].show()
+    self.rubberBand_list[self.index]['geom'].addPoint(point1, False)
+    self.rubberBand_list[self.index]['geom'].addPoint(point2, True) # true to update canvas  
+    self.rubberBand_list[self.index]['geom'].show()
     for i in range(self.index):
-      self.rubberBand_list[i].show()
+      self.rubberBand_list[i]['geom'].show()
 
   def deactivate(self):
     """
