@@ -373,8 +373,8 @@ class LineTool(QgsMapTool):
 
       # Perform test to see if points are in range if so return a geometry to center upon and continue testing
       if  geom.wkbType().name != 'Unknown':
-        x = geom.asPolyline()[-1].x() + 200
-        y = geom.asPolyline()[-1].y()
+        x = geom.asPolyline()[0].x() - 200
+        y = geom.asPolyline()[0].y()
 
         a = QgsAnnotationPointTextItem(f"{index}", QgsPointXY(x, y))
 
