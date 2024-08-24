@@ -45,7 +45,7 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
         self.annotaiton_layer_name ='plugin_annotation'
         self.tabs.currentChanged.connect(self.on_tab_changed)
         self.pushButton_draw_lines.clicked.connect(self.draw_lines)
-        self.pushButton_reset_lines.clicked.connect(self.remove_lines)
+        self.pushButton_reset_lines.clicked.connect(self.reset)
         self.pushButton_select_features.clicked.connect(self.select_features)
         self.pushButton_init.clicked.connect(self.init_manual)
 
@@ -80,7 +80,7 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
         self.closingPlugin.emit()
         event.accept()
     def on_tab_changed(self, index):
-       self.remove_lines()
+       self.reset()
        self.iface.mapCanvas().setCursor(QtCore.Qt.ArrowCursor)
        print(index)
        if index ==1:
@@ -164,7 +164,7 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
        self.iface.mapCanvas().setCursor(QtCore.Qt.CrossCursor) 
 
 
-    def remove_lines(self):
+    def reset(self):
       """
       Remove the lines from the canvas.
 
