@@ -108,6 +108,7 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
         Returns:
         - None
         """
+        self.reset()
         self.active_layer = self.iface.activeLayer()
         if (self.tool is not None):
             self.tool.removeRubberBands()
