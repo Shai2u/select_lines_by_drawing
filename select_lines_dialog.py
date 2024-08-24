@@ -219,15 +219,8 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
       self.iface.mapCanvas().setCursor(QtCore.Qt.ArrowCursor)
       
       # Deselect all features first
-      if self.tool.automatic_mode:
-        layer.removeSelection()
-        set_of_ids_to_select = set()
-      else:
-         set_of_ids_to_select = set(feature.id() for feature in layer.selectedFeatures())
+      set_of_ids_to_select = set(feature.id() for feature in layer.selectedFeatures())
       # Create a set to hold IDs of intersecting features
-
-      # First selection
-      # drawn_geometry = self.tool.rubberBand_list[0]['geom'].asGeometry()
 
       project_crs = QgsProject.instance().crs()
       layer_crs = layer.crs()
