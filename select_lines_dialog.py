@@ -442,7 +442,7 @@ class LineTool(QgsMapTool):
         x = geom.asPolyline()[0].x() - 200
         y = geom.asPolyline()[0].y()
 
-        a = QgsAnnotationPointTextItem(f"{index}", QgsPointXY(x, y))
+        a = QgsAnnotationPointTextItem(f"{index + 1}", QgsPointXY(x, y))
 
         # # 4. Create a QgsTextFormat object to handle the buffer
         text_format = QgsTextFormat()
