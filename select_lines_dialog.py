@@ -125,6 +125,7 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
         self.tool = LineTool(self.iface.mapCanvas(),  self.pushButton_reset_lines,  self.pushButton_select_features, self.iface.activeLayer().crs(), self.annolayer , True)
         self.iface.mapCanvas().setMapTool(self.tool)
         self.iface.mapCanvas().setCursor(QtCore.Qt.CrossCursor)
+        self.pushButton_draw_lines.setEnabled(False)
 
     def init_manual(self):
         self.iface.mapCanvas().setCursor(QtCore.Qt.ArrowCursor)
@@ -189,6 +190,7 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
           self.pushButton_add_lines.setEnabled(False)
           self.pushButton_remove_lines.setEnabled(False)
           self.pushButton_filter_lines.setEnabled(False)
+          self.pushButton_draw_lines.setEnabled(True)
       
     
     def get_line_ids(self, layer, drawn_geometry):
@@ -249,6 +251,7 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
       self.pushButton_add_lines.setEnabled(False)
       self.pushButton_remove_lines.setEnabled(False)
       self.pushButton_filter_lines.setEnabled(False)
+      self.pushButton_draw_lines.setEnabled(True)
 
 
 class LineTool(QgsMapTool):
