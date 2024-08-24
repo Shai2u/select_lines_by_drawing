@@ -201,7 +201,9 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
           self.pushButton_draw_lines.setEnabled(True)
           
           # Remove and recreate annotation layer
-          QgsProject.instance().removeMapLayer(self.annolayer.id())
+          if self.annolayer is not None and self.annolayer.isValid():
+            QgsProject.instance().removeMapLayer(self.annolayer.id())
+            
           self.annolayer = QgsAnnotationLayer(self.annotaiton_layer_name, QgsAnnotationLayer.LayerOptions(QgsProject.instance().transformContext()))
           QgsProject.instance().addMapLayer(self.annolayer)
           self.annolayer.setFlags(QgsMapLayer.Private)
