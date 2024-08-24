@@ -96,7 +96,7 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
         layer_check = QgsProject.instance().mapLayersByName(self.annotaiton_layer_name)
         # Check if the layer exists in the Table of Contents
         if len(layer_check) >0:
-          QgsProject.instance().removeMapLayer(self.annolayer.id())
+          QgsProject.instance().removeMapLayer(layer_check[0].id())
         self.iface.mapCanvas().unsetMapTool(self.tool)
         self.iface.mapCanvas().setCursor(QtCore.Qt.ArrowCursor)
         self.iface.mapCanvas().refresh()
