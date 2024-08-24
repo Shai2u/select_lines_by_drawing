@@ -3,7 +3,7 @@ name=Select Lines
 qgisMinimumVersion=3.0
 qgisMaximumVersion=3.99
 description=Select Lines
-version=0.2
+version=0.3
 author=Shai Sussman
 email=shai.sussman@gmail.com
 
@@ -26,6 +26,16 @@ server=False
     Version 0.2
     * Set number of selected drawing lines from 5 to 25
     * Show corrected number of selected lines in user push message
+    Version 0.3
+    * Overhauled the code with significant improvements in performance.
+    * Improved UI interaction
+    * Now the plugin works with existing selection, the plugin won't reset exisitng selection thus enabling selecting features ahead of using the plugin.
+    * Add help notes to describe the different options in the plugin
+    * Added annotation near the drawn line for ordering execution reference and convenience
+    * Added add, remove, filter options that can be drawn.
+    * Added automatic/manual mode, automatic mode: first adds to selection and than filters for each drawn line, manual mode: enable the user to add, remove or filter in every step
+    * Added tabs to distinguish between automatic/manual
+    * Change the colors of the strokes, Green is add to selection, Blue is filter from selection, and black is remvoe from selection.
 
 
 # Tags are comma separated with spaces allowed
