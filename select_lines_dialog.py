@@ -219,27 +219,20 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
       self.iface.mapCanvas().setCursor(QtCore.Qt.ArrowCursor)
       
       # Deselect all features first
-      layer.removeSelection()
+      if self.tool.automatic_mode:
+        layer.removeSelection()
+        set_of_ids_to_select = set()
+      else:
+         set_of_ids_to_select = set(feature.id() for feature in layer.selectedFeatures())
       # Create a set to hold IDs of intersecting features
-      set_of_ids_to_select = set()
 
       # First selection
-      drawn_geometry = self.tool.rubberBand_list[0]['geom'].asGeometry()
+      # drawn_geometry = self.tool.rubberBand_list[0]['geom'].asGeometry()
 
       project_crs = QgsProject.instance().crs()
       layer_crs = layer.crs()
-      if project_crs!=layer_crs:
-        # Create coordinate transform object
-        transform = QgsCoordinateTransform(project_crs, layer_crs, QgsProject.instance().transformContext())
-        # Transform the geometry to the layer's CRS
-        drawn_geometry.transform(transform)
-
       transform = QgsCoordinateTransform(project_crs, layer_crs, QgsProject.instance().transformContext())
-      lines_intersect_ids = self.get_line_ids(layer, drawn_geometry)
-      set_of_ids_to_select = set_of_ids_to_select.union(lines_intersect_ids)
-      # Select the features by IDs
-      layer.selectByIds(list(set_of_ids_to_select))
-      # filter from first selection
+
       for i, rubber_band_dict in enumerate(self.tool.rubberBand_list):
         drawn_geometry = rubber_band_dict['geom'].asGeometry()
         # Transform the geometry to the layer's CRS
