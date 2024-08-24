@@ -203,7 +203,7 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
           # Remove and recreate annotation layer
           if self.annolayer is not None and self.annolayer.isValid():
             QgsProject.instance().removeMapLayer(self.annolayer.id())
-            
+
           self.annolayer = QgsAnnotationLayer(self.annotaiton_layer_name, QgsAnnotationLayer.LayerOptions(QgsProject.instance().transformContext()))
           QgsProject.instance().addMapLayer(self.annolayer)
           self.annolayer.setFlags(QgsMapLayer.Private)
@@ -287,11 +287,6 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
       # Set the cursor to the default arrow cursor
       self.iface.mapCanvas().setCursor(QtCore.Qt.ArrowCursor)
       
-      # Enable the buttons for adding, removing, and filtering lines
-      self.pushButton_add_lines.setEnabled(True)
-      self.pushButton_remove_lines.setEnabled(True)
-      self.pushButton_filter_lines.setEnabled(True)
-      
       # Get the active layer
       self.active_layer = self.iface.activeLayer()
       
@@ -300,9 +295,6 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
         self.iface.messageBar().pushMessage("Error", "Invalid layer provided.", level=Qgis.Critical)
         return
       
-      if self.tool is not None:
-        # Remove any existing rubber bands
-        self.tool.removeRubberBands()
 
       # Find the layer by its name
       layer_check = QgsProject.instance().mapLayersByName(self.annotaiton_layer_name)
@@ -320,10 +312,19 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
       else:
         # Use the existing annotation layer
         self.annolayer = layer_check[0]
-      
+
+        # Reset the state and variables
+        self.reset()
+
       # Create a new LineTool instance with the necessary parameters - most importantly it is in Manual mode
       self.tool = LineTool(self.iface.mapCanvas(), self.pushButton_reset_lines, self.pushButton_select_features, self.iface.activeLayer().crs(), self.annolayer, False)
-    
+  
+      # Enable the buttons for adding, removing, and filtering lines
+      self.pushButton_add_lines.setEnabled(True)
+      self.pushButton_remove_lines.setEnabled(True)
+      self.pushButton_filter_lines.setEnabled(True)
+
+
     def add_lines(self):
       """
       Set the map tool to LineTool in add mode.
@@ -458,15 +459,16 @@ class LineTool(QgsMapTool):
     Returns:
       None
     """
-    self.startPoint = self.toMapCoordinates(e.pos())
-    self.endPoint = self.startPoint
-    self.isEmittingPoint = True
-    if self.index < self.index_max -1:
-      self.index += 1
-      self.reset_button.setEnabled(True)
-      self.select_features_button.setEnabled(True)
-    else:
-      self.index = 0
+    if self.canvas.cursor().shape()!=0:
+      self.startPoint = self.toMapCoordinates(e.pos())
+      self.endPoint = self.startPoint
+      self.isEmittingPoint = True
+      if self.index < self.index_max -1:
+        self.index += 1
+        self.reset_button.setEnabled(True)
+        self.select_features_button.setEnabled(True)
+      else:
+        self.index = 0
 
   def canvasReleaseEvent(self, e): 
     """
@@ -478,8 +480,9 @@ class LineTool(QgsMapTool):
     Returns:
     None
     """
-    self.isEmittingPoint = False
-    self.add_index_anottation(self.index, self.rubberBand_list[self.index]['geom'].asGeometry())
+    if self.canvas.cursor().shape()!=0:
+      self.isEmittingPoint = False
+      self.add_index_anottation(self.index, self.rubberBand_list[self.index]['geom'].asGeometry())
 
     
 
@@ -497,10 +500,11 @@ class LineTool(QgsMapTool):
     This method is called when the cursor is moved int the canvas. It updates the end point of the line being drawn and shows the line on the canvas.
 
     """
-    if not self.isEmittingPoint:
-      return
-    self.endPoint = self.toMapCoordinates(e.pos())
-    self.showLine(self.startPoint, self.endPoint)
+    if self.canvas.cursor().shape()!=0:
+      if not self.isEmittingPoint:
+        return
+      self.endPoint = self.toMapCoordinates(e.pos())
+      self.showLine(self.startPoint, self.endPoint)
 
   def _configure_rubberband(self, rubberBand, operation):
     rubberBand['operation'] = operation
