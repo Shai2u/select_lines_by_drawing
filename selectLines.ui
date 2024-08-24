@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>295</width>
+    <width>299</width>
     <height>479</height>
    </rect>
   </property>
@@ -32,7 +32,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabs">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -121,7 +121,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>Filter from currentselection</string>
+             <string>Filter from current selection</string>
             </property>
            </widget>
           </item>
@@ -137,7 +137,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>Remvoe from currentselection</string>
+             <string>Remvoe from current selection</string>
             </property>
            </widget>
           </item>
