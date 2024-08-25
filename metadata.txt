@@ -3,7 +3,7 @@ name=Select Lines
 qgisMinimumVersion=3.0
 qgisMaximumVersion=3.99
 description=Select Lines
-version=0.3
+version=0.4
 author=Shai Sussman
 email=shai.sussman@gmail.com
 
