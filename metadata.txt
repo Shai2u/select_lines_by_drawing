@@ -36,7 +36,11 @@ server=False
     * Added automatic/manual mode, automatic mode: first adds to selection and than filters for each drawn line, manual mode: enable the user to add, remove or filter in every step
     * Added tabs to distinguish between automatic/manual
     * Change the colors of the strokes, Green is add to selection, Blue is filter from selection, and black is remvoe from selection.
-
+    Version 0.4
+    * Improve enlgish in instructions
+    * Fixed missing layer reference error
+    * Switched from buttons to radio-buttons simplifes interface
+    * Change black fill to gray
 
 # Tags are comma separated with spaces allowed
 tags=filter,layer,selection, transportation
