@@ -413,7 +413,7 @@ class LineTool(QgsMapTool):
     self.select_features_button = select_features_button
     self.rb_config = {'add': {'color': QtCore.Qt.green, 'width': 4, 'secondary_color': QtCore.Qt.red, 'line_style': QtCore.Qt.SolidLine},
                                    'filter': {'color': QtCore.Qt.blue, 'width': 4, 'secondary_color': QtCore.Qt.red, 'line_style': QtCore.Qt.SolidLine},
-                                   'remove': {'color': QtCore.Qt.black, 'width': 4, 'secondary_color': QtCore.Qt.red, 'line_style': QtCore.Qt.SolidLine}}
+                                   'remove': {'color': QtCore.Qt.gray, 'width': 4, 'secondary_color': QtCore.Qt.red, 'line_style': QtCore.Qt.SolidLine}}
     for i in range(self.index_max):
       rubberBand = QgsRubberBand(self.canvas, QgsWkbTypes.LineGeometry)
       if i==0:
