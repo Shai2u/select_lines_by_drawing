@@ -196,7 +196,8 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
           # Remove and recreate annotation layer
           # Find the layer by its name
           layer_check = QgsProject.instance().mapLayersByName(self.annotaiton_layer_name)
-      
+          # rember the active layer before removing the annotationlayer
+          self.active_layer = self.iface.activeLayer()
           # Check if the layer exists in the Table of Contents
           if len(layer_check) > 0:
              QgsProject.instance().removeMapLayer(layer_check[0].id())
@@ -302,7 +303,8 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
         
         # Make the annotaiton layer private that means invislbe in TOC
         self.annolayer.setFlags(QgsMapLayer.Private)
-        self.iface.setActiveLayer(self.active_layer)
+        
+        self.active_layer = self.iface.activeLayer()
       else:
         # Use the existing annotation layer
         self.annolayer = layer_check[0]
