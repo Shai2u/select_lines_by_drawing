@@ -3,7 +3,7 @@ name=Select Lines
 qgisMinimumVersion=3.0
 qgisMaximumVersion=3.99
 description=Select Lines
-version=0.4
+version=0.4.1
 author=Shai Sussman
 email=shai.sussman@gmail.com
 
@@ -41,6 +41,8 @@ server=False
     * Fixed missing layer reference error
     * Switched from buttons to radio-buttons simplifes interface
     * Change black fill to gray
+    Version 0.4.1
+    * Fix bug where selected layer jumped
 
 # Tags are comma separated with spaces allowed
 tags=filter,layer,selection, transportation
