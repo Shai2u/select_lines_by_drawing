@@ -122,9 +122,6 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
        else:
           self.automatic_mode = True
 
-
-
-
     def draw_lines(self):
       """
       Draws lines on the map canvas using the LineTool.
@@ -594,7 +591,6 @@ class LineTool(QgsMapTool):
         text_format.setBuffer(buffer_settings)
         a.setFormat(text_format)
         self.annolayer.addItem(a)
-
 
   def deactivate(self):
     """
