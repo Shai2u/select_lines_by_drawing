@@ -48,7 +48,7 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14px;&quot;&gt;• The first line drawned defines or adds to the current selection of features. &lt;/span&gt;&lt;br/&gt;&lt;span style=&quot; font-size:14px;&quot;&gt;• Subsequent lines will apply filters from the current selection in  the order they are drawn. &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;First line drawn defines/adds to current selection of features. &lt;/p&gt;&lt;p&gt;Subsequent lines will apply filters from the current selection in the order they are drawn&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="wordWrap">
            <bool>true</bool>
@@ -86,7 +86,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14px;&quot;&gt;• Select the desired layer first and press Initialize tool afterwards.&lt;/span&gt;&lt;br/&gt;&lt;span style=&quot; font-size:14px;&quot;&gt;• Select on the desired option and draw line/s on the canvas. &lt;/span&gt;&lt;br/&gt;&lt;span style=&quot; font-size:14px;&quot;&gt;• ⁠Subsequent lines will apply add/remove/filter to the current selection in the order they are drawn.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14px;&quot;&gt;Select the desired layer first and press Initialize tool&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:14px;&quot;&gt;•⁠  ⁠Select the desired option and draw line/s on the canvas. &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:14px;&quot;&gt;•⁠  ⁠⁠Subsequent lines will apply add/remove/filter to the current selection in the order they are drawn.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="wordWrap">
              <bool>true</bool>
