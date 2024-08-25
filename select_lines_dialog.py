@@ -59,6 +59,9 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
         
         # Set the automatic mode to True
         self.automatic_mode = True
+
+        # Set the initial state of the manual mode to False
+        self.init_manual_mode = False
         
         # Set the name of the annotation layer
         self.annotaiton_layer_name = 'plugin_annotation'
@@ -71,9 +74,9 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
         self.pushButton_reset_lines.clicked.connect(self.reset)
         self.pushButton_select_features.clicked.connect(self.select_features)        
         self.pushButton_init.clicked.connect(self.init_manual)
-        self.pushButton_add_lines.clicked.connect(self.add_lines)
-        self.pushButton_remove_lines.clicked.connect(self.subtract_lines)
-        self.pushButton_filter_lines.clicked.connect(self.filter_lines)       
+        self.radioButton_add_lines.toggled.connect(self.add_lines)
+        self.radioButton_remove_lines.toggled.connect(self.subtract_lines)
+        self.radioButton_filter_lines.toggled.connect(self.filter_lines)  
         
         # Disable the reset lines and select  button initially
         self.pushButton_reset_lines.setEnabled(False)
@@ -113,13 +116,9 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
        """
        self.reset()
        self.iface.mapCanvas().setCursor(QtCore.Qt.ArrowCursor)
-       print(index)
+       self.init_manual_mode = False
        if index ==1:
           self.automatic_mode = False
-          self.pushButton_add_lines.setEnabled(False)
-          self.pushButton_remove_lines.setEnabled(False)
-          self.pushButton_filter_lines.setEnabled(False)
-
        else:
           self.automatic_mode = True
 
@@ -195,11 +194,8 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
           # Disable/Enable buttons
           self.pushButton_reset_lines.setEnabled(False)
           self.pushButton_select_features.setEnabled(False)
-          self.pushButton_add_lines.setEnabled(False)
-          self.pushButton_remove_lines.setEnabled(False)
-          self.pushButton_filter_lines.setEnabled(False)
           self.pushButton_draw_lines.setEnabled(True)
-          
+          self.init_manual_mode = False
           # Remove and recreate annotation layer
           # Find the layer by its name
           layer_check = QgsProject.instance().mapLayersByName(self.annotaiton_layer_name)
@@ -268,9 +264,7 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
       
       # Enable Disable buttons
       self.pushButton_select_features.setEnabled(False)
-      self.pushButton_add_lines.setEnabled(False)
-      self.pushButton_remove_lines.setEnabled(False)
-      self.pushButton_filter_lines.setEnabled(False)
+      self.init_manual_mode = False
       self.pushButton_draw_lines.setEnabled(True)
         
 
@@ -289,7 +283,6 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
       - None
       """
       # Set the cursor to the default arrow cursor
-      self.iface.mapCanvas().setCursor(QtCore.Qt.ArrowCursor)
       
       # Get the active layer
       self.active_layer = self.iface.activeLayer()
@@ -324,9 +317,14 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
       self.tool = LineTool(self.iface.mapCanvas(), self.pushButton_reset_lines, self.pushButton_select_features, self.iface.activeLayer().crs(), self.annolayer, False)
   
       # Enable the buttons for adding, removing, and filtering lines
-      self.pushButton_add_lines.setEnabled(True)
-      self.pushButton_remove_lines.setEnabled(True)
-      self.pushButton_filter_lines.setEnabled(True)
+      self.init_manual_mode = True
+      if self.radioButton_add_lines.isChecked():
+        self.add_lines()
+      elif self.radioButton_remove_lines.isChecked():
+        self.subtract_lines()
+      else:
+        self.filter_lines()
+
 
 
     def add_lines(self):
@@ -341,6 +339,8 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
       Returns:
       - None
       """
+      if self.init_manual_mode == False:
+        self.init_manual()
       self.tool.operation = 'add'
       self.iface.mapCanvas().setMapTool(self.tool)
       self.iface.mapCanvas().setCursor(QtCore.Qt.CrossCursor)
@@ -357,6 +357,8 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
       Returns:
       - None
       """
+      if self.init_manual_mode == False:
+        self.init_manual()
       self.tool.operation = 'remove'
       self.iface.mapCanvas().setMapTool(self.tool)
       self.iface.mapCanvas().setCursor(QtCore.Qt.CrossCursor)  
@@ -373,6 +375,8 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
       Returns:
       - None
       """
+      if self.init_manual_mode == False:
+        self.init_manual()
       self.tool.operation = 'filter'
       self.iface.mapCanvas().setMapTool(self.tool)
       self.iface.mapCanvas().setCursor(QtCore.Qt.CrossCursor) 
