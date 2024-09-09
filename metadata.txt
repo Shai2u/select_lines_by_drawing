@@ -1,9 +1,9 @@
 [general]
 name=Select Lines
-qgisMinimumVersion=3.0
+qgisMinimumVersion=3.34
 qgisMaximumVersion=3.99
 description=Select Lines
-version=0.4.1
+version=0.4.2
 author=Shai Sussman
 email=shai.sussman@gmail.com
 
@@ -43,6 +43,8 @@ server=False
     * Change black fill to gray
     Version 0.4.1
     * Fix bug where selected layer jumped
+    Version 0.4.2
+    * Note this plugin support QGIS version 3.34 and beyond
 
 # Tags are comma separated with spaces allowed
 tags=filter,layer,selection, transportation
