@@ -22,7 +22,6 @@
 """
 # Import the PyQt and QGIS libraries
 from qgis.PyQt import QtCore, QtWidgets, QtGui
-import subprocess
 from qgis.core import *
 from qgis.gui import *
 from qgis.utils import *
