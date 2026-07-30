@@ -21,12 +21,11 @@
  This script initializes the plugin, making it known to QGIS.
 """
 # Import the PyQt and QGIS libraries
-from PyQt5 import Qt, QtCore, QtWidgets, QtGui
+from qgis.PyQt import QtCore, QtWidgets, QtGui
 import subprocess
 from qgis.core import *
 from qgis.gui import *
 from qgis.utils import *
-from .resources_rc import *
 from .select_lines_dialog import SelectLinesDialog
 
 # Import the code for the dialog
@@ -40,7 +39,8 @@ class SelectLines:
         self.dockwidget = None
 
     def initGui(self):
-        self.panelAction = QtWidgets.QAction(QtGui.QIcon(":/plugins/selectlines/icon.png"),u"SelectLines", self.iface.mainWindow())
+        icon_path = os.path.join(self.plugin_dir, "icon.png")
+        self.panelAction = QtWidgets.QAction(QtGui.QIcon(icon_path),u"SelectLines", self.iface.mainWindow())
         self.panelAction.triggered.connect(self.run)
         self.panelAction.setCheckable(True)
         self.panelAction.setEnabled(True)
@@ -80,7 +80,7 @@ class SelectLines:
         self.dockwidget.closingPlugin.connect(self.onClosePlugin)
 
         self.iface.addDockWidget(
-            area=QtCore.Qt.LeftDockWidgetArea,
+            area=QtCore.Qt.DockWidgetArea.LeftDockWidgetArea,
             dockwidget=self.dockwidget,
         )
       self.dockwidget.setVisible(checked)  
