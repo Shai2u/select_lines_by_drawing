@@ -50,7 +50,7 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
         None
         """
         # Initialize Plugin widget, UI and setup iface references to QGIS interface object
-        QtWidgets.QDockWidget.__init__(self, None, QtCore.Qt.WindowStaysOnTopHint)
+        QtWidgets.QDockWidget.__init__(self, None, QtCore.Qt.WindowType.WindowStaysOnTopHint)
         self.setupUi(self)
         self.iface = iface
         
@@ -101,7 +101,7 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
         if len(layer_check) >0:
           QgsProject.instance().removeMapLayer(layer_check[0].id())
         self.iface.mapCanvas().unsetMapTool(self.tool)
-        self.iface.mapCanvas().setCursor(QtCore.Qt.ArrowCursor)
+        self.iface.mapCanvas().setCursor(QtCore.Qt.CursorShape.ArrowCursor)
         self.iface.mapCanvas().refresh()
         self.closingPlugin.emit()
         event.accept()
@@ -115,7 +115,7 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
  
        """
        self.reset()
-       self.iface.mapCanvas().setCursor(QtCore.Qt.ArrowCursor)
+       self.iface.mapCanvas().setCursor(QtCore.Qt.CursorShape.ArrowCursor)
        self.init_manual_mode = False
        if index ==1:
           self.automatic_mode = False
@@ -166,7 +166,7 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
       self.iface.mapCanvas().setMapTool(self.tool)
       
       # Set the cursor to a cross cursor
-      self.iface.mapCanvas().setCursor(QtCore.Qt.CrossCursor)
+      self.iface.mapCanvas().setCursor(QtCore.Qt.CursorShape.CrossCursor)
       
       # Disable the draw lines button after it is clicked
       self.pushButton_draw_lines.setEnabled(False)
@@ -186,7 +186,7 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
       if self.tool is not None:
           # Remove rubber bands and reset cursor
           self.tool.removeRubberBands()
-          self.iface.mapCanvas().setCursor(QtCore.Qt.ArrowCursor)
+          self.iface.mapCanvas().setCursor(QtCore.Qt.CursorShape.ArrowCursor)
           
           # Disable/Enable buttons
           self.pushButton_reset_lines.setEnabled(False)
@@ -218,7 +218,7 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
         None
       """
       # Set cursor to regular arrow
-      self.iface.mapCanvas().setCursor(QtCore.Qt.ArrowCursor)
+      self.iface.mapCanvas().setCursor(QtCore.Qt.CursorShape.ArrowCursor)
 
       # Check if active layer is valid and if tool is initialized
       layer = self.iface.activeLayer()
@@ -342,7 +342,7 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
         self.init_manual()
       self.tool.operation = 'add'
       self.iface.mapCanvas().setMapTool(self.tool)
-      self.iface.mapCanvas().setCursor(QtCore.Qt.CrossCursor)
+      self.iface.mapCanvas().setCursor(QtCore.Qt.CursorShape.CrossCursor)
 
     def subtract_lines(self):
       """
@@ -360,7 +360,7 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
         self.init_manual()
       self.tool.operation = 'remove'
       self.iface.mapCanvas().setMapTool(self.tool)
-      self.iface.mapCanvas().setCursor(QtCore.Qt.CrossCursor)  
+      self.iface.mapCanvas().setCursor(QtCore.Qt.CursorShape.CrossCursor)  
 
     def filter_lines(self):
       """
@@ -378,7 +378,7 @@ class SelectLinesDialog(QtWidgets.QDockWidget, FORM_CLASS):
         self.init_manual()
       self.tool.operation = 'filter'
       self.iface.mapCanvas().setMapTool(self.tool)
-      self.iface.mapCanvas().setCursor(QtCore.Qt.CrossCursor) 
+      self.iface.mapCanvas().setCursor(QtCore.Qt.CursorShape.CrossCursor) 
 
     def get_line_ids(self, layer, drawn_geometry):
       """
@@ -413,9 +413,9 @@ class LineTool(QgsMapTool):
     self.index_max = 25
     self.reset_button = reset_button
     self.select_features_button = select_features_button
-    self.rb_config = {'add': {'color': QtCore.Qt.green, 'width': 4, 'secondary_color': QtCore.Qt.red, 'line_style': QtCore.Qt.SolidLine},
-                                   'filter': {'color': QtCore.Qt.blue, 'width': 4, 'secondary_color': QtCore.Qt.red, 'line_style': QtCore.Qt.SolidLine},
-                                   'remove': {'color': QtCore.Qt.gray, 'width': 4, 'secondary_color': QtCore.Qt.red, 'line_style': QtCore.Qt.SolidLine}}
+    self.rb_config = {'add': {'color': QtCore.Qt.GlobalColor.green, 'width': 4, 'secondary_color': QtCore.Qt.GlobalColor.red, 'line_style': QtCore.Qt.PenStyle.SolidLine},
+                                   'filter': {'color': QtCore.Qt.GlobalColor.blue, 'width': 4, 'secondary_color': QtCore.Qt.GlobalColor.red, 'line_style': QtCore.Qt.PenStyle.SolidLine},
+                                   'remove': {'color': QtCore.Qt.GlobalColor.gray, 'width': 4, 'secondary_color': QtCore.Qt.GlobalColor.red, 'line_style': QtCore.Qt.PenStyle.SolidLine}}
     for i in range(self.index_max):
       rubberBand = QgsRubberBand(self.canvas, QgsWkbTypes.LineGeometry)
       if i==0:
@@ -589,7 +589,7 @@ class LineTool(QgsMapTool):
         buffer_settings = QgsTextBufferSettings()
         buffer_settings.setEnabled(True)
         buffer_settings.setSize(2)  # Size of the buffer
-        buffer_settings.setColor(QtCore.Qt.white)  # Color of the buffer
+        buffer_settings.setColor(QtCore.Qt.GlobalColor.white)  # Color of the buffer
         text_format.setBuffer(buffer_settings)
         a.setFormat(text_format)
         self.annolayer.addItem(a)
