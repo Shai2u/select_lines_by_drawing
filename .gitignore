@@ -1,1 +1,3 @@
 zip_build/*
+__pycache__/
+*.pyc
